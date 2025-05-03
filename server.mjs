@@ -6,11 +6,17 @@ import { WebSocketServer } from 'ws';
 
 dotenv.config();
 
+const LOCAL_DEV = process.env.NODE_ENV !== 'production';
+
 const app = express();
 const HTTP_PORT = 3002;
 const WS_PORT = 3001;
 
-app.use(cors({ origin: 'http://localhost:5173' }));
+app.use(cors({ 
+  origin: LOCAL_DEV 
+    ? 'http://localhost:5173' 
+    : 'https://desafio-tecnico-furia-front.vercel.app'
+}));
 app.use(express.json());
 
 /* Configurações OpenRouter gerada com IA */
@@ -78,7 +84,11 @@ app.post("/perguntar-ia", async (req, res) => {
 
 /* WebSocket para interação no chat */
 
-const wss = new WebSocketServer({ port: WS_PORT });
+const wss = new WebSocketServer({ 
+  port: process.env.WS_PORT || 3001,
+  path: '/furia-chat'
+});
+
 wss.on("connection", (ws) => {
   ws.on("message", (mensagem) => {
     wss.clients.forEach((client) => {
