@@ -10,7 +10,7 @@ dotenv.config();
 const LOCAL_DEV = process.env.NODE_ENV !== 'production';
 
 const app = express();
-const HTTP_PORT = 3002;
+const HTTP_PORT = process.env.PORT || 3002;
 const WS_PORT = 3001;
 
 const allowedOrigins = [
@@ -109,6 +109,6 @@ wss.on("connection", (ws) => {
   });
 });
 
-server.listen(process.env.PORT || 3001, () => {
-  console.log(`Servidor rodando na porta ${server.address().port}`);
+server.listen(HTTP_PORT, () => {
+  console.log(`Servidor unificado (HTTP+WS) na porta ${HTTP_PORT}`);
 });
