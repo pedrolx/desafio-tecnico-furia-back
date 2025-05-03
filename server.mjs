@@ -3,6 +3,7 @@ import fetch from 'node-fetch';
 import express from 'express';
 import cors from 'cors';
 import { WebSocketServer } from 'ws';
+import { createServer } from "http";
 
 dotenv.config();
 
@@ -12,11 +13,22 @@ const app = express();
 const HTTP_PORT = 3002;
 const WS_PORT = 3001;
 
-app.use(cors({ 
-  origin: LOCAL_DEV 
-    ? 'http://localhost:5173' 
-    : 'https://desafio-tecnico-furia-front.vercel.app'
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://desafio-tecnico-furia-front.vercel.app'
+];
+
+app.use(cors({
+  origin: function(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
 }));
+
 app.use(express.json());
 
 /* Configurações OpenRouter gerada com IA */
@@ -34,7 +46,7 @@ const OPENROUTER_CONFIG = {
 
 /* Rota POST para o caso do usuario perguntar algo a IA */
 
-app.post("/perguntar-ia", async (req, res) => {
+app.post("/api/perguntar-ia", async (req, res) => {
   try {
     const { question } = req.body;
 
@@ -84,10 +96,8 @@ app.post("/perguntar-ia", async (req, res) => {
 
 /* WebSocket para interação no chat */
 
-const wss = new WebSocketServer({ 
-  port: process.env.WS_PORT || 3001,
-  path: '/furia-chat'
-});
+const server = createServer(app);
+const wss = new WebSocketServer({ server, path: '/furia-chat' });
 
 wss.on("connection", (ws) => {
   ws.on("message", (mensagem) => {
@@ -99,6 +109,6 @@ wss.on("connection", (ws) => {
   });
 });
 
-app.listen(HTTP_PORT, () => {
-  console.log(`Servidor pronto na porta ${HTTP_PORT}`);
+server.listen(process.env.PORT || 3001, () => {
+  console.log(`Servidor rodando na porta ${server.address().port}`);
 });
