@@ -46,7 +46,7 @@ const OPENROUTER_CONFIG = {
 
 /* Rota POST para o caso do usuario perguntar algo a IA */
 
-app.post("/api/perguntar-ia", async (req, res) => {
+app.post("/perguntar-ia", async (req, res) => {
   try {
     const { question } = req.body;
 
