@@ -97,7 +97,7 @@ app.post("/perguntar-ia", async (req, res) => {
 /* WebSocket para interação no chat */
 
 const server = createServer(app);
-const wss = new WebSocketServer({ server, path: '/ws' });
+const wss = new WebSocketServer({ server, path: '/furia-chat' });
 
 wss.on("connection", (ws) => {
   ws.on("message", (mensagem) => {
